@@ -1,13 +1,13 @@
 module Parse exposing (parseReceipt)
 import Parser exposing (Parser,Error, map, into, succeed, grab, ignore, separatedBy, followedBy, string, anyChar)
-import Parser.Common exposing (int, tab, space, blank, blanks, newline, word)
+import Parser.Common exposing (int, tab, blank, newline)
 
 import Types exposing (..)
 
 parseReceipt : String -> Result Error Receipt
 parseReceipt str = Parser.parse str receipt
+skipSpaces : Parser (List Char)
 skipSpaces = Parser.zeroOrMore (Parser.oneOf [blank, newline])
-
 receipt : Parser Receipt
 receipt = into Receipt
     |> ignore skipSpaces
@@ -44,7 +44,7 @@ priceNum = into (++)
             Nothing -> Parser.fail "can not happen"
         )
 
-        
+separatedBy1 : Parser s -> Parser a -> Parser (List a)        
 separatedBy1 s p = 
     s |> Parser.followedBy (separatedBy s p)
     |> Parser.maybe |> Parser.map (Maybe.withDefault [])

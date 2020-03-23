@@ -1,6 +1,6 @@
 module Main exposing (..)
 import Browser exposing (document,Document)
-import Html exposing (Html, ul, li, text, node)
+import Html exposing (Html, text, node)
 import Html.Attributes exposing (autofocus,class,attribute,rel,href,style)
 import Html.Events exposing (onInput)
 import Bootstrap.Table as Table
@@ -38,11 +38,11 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model = case (msg,model) of
     (NewPercentage str, WithReceipt r _ ) -> case String.toFloat str of
         Just p -> (newPercentage r p, Cmd.none)
-        -- TODO 
+        -- TODO display error
         Nothing -> log "could not parse percentage" (model, Cmd.none)
     (Pasted str, _) -> case parseReceipt str of
         Err err -> log err (model, Cmd.none)
-        Ok receipt -> (newPercentage receipt 0.4, Cmd.none)
+        Ok receipt -> (newPercentage receipt 40, Cmd.none)
     _ -> log "can not happen" (model, Cmd.none)
 
 newPercentage : Receipt -> Float -> Model
@@ -54,14 +54,15 @@ calcFinal : Float -> Item -> Item
 calcFinal p i = 
     let (Price cents) = i.price
         withoutTax = toFloat cents / 1.07
-    in {i | finalPrice = toFloat cents - withoutTax * p |> truncate |> Price}
+        factor = p / 100
+        saving = withoutTax * factor
+    in {i | finalPrice = toFloat cents - saving |> truncate |> Price}
 
 log : toLog -> a -> a
 log toLog = Debug.log (Debug.toString toLog)
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+subscriptions _ = Sub.none
 
 view : Model -> Document Msg
 view model = 
@@ -76,7 +77,13 @@ viewPasteInput =
     [Card.view (Card.config [Card.attrs [Spacing.m5]]
         |> Card.header [style "font-size" "20px"] [text "Email Text einfügen"]
         |> Card.block [] [CardBlock.custom (
-            TA.textarea [TA.value testData, TA.rows 20, TA.onInput Pasted])])
+            TA.textarea 
+                [TA.attrs [autofocus True]
+                , TA.value testData
+                , TA.rows 20
+                , TA.onInput Pasted
+                ]
+            )])
     ]
 
 discounted : List (Table.CellOption Msg)
@@ -89,17 +96,21 @@ viewReceipt receipt percentage =
         |> Card.header [] [text receipt.restaurant]
         |> block [] (viewItemTable receipt.items)
         |> block [] (Form.formInline [class "justify-content-center"] 
-            [Html.span [style "padding-right" "15px", class "text-center"] [text "Cashback Prozente:"]
+            [Html.span [style "padding-right" "15px"] [text "Cashback:"]
             ,In.number 
                 [In.onInput NewPercentage
                 ,In.value (String.fromFloat percentage)
-                , In.attrs [attribute "step" "0.1", style "width" "70px"]
+                , In.attrs 
+                    [attribute "step" "5", style "width" "60px"
+                    ,attribute "min" "0", attribute "max" "100"
+                    ]
                 ]
+            ,Html.span [style "padding-left" "5px"] [text "%"]
             ])
         )
     ]
 
-
+block : List (CardBlock.Option Msg) -> Html Msg -> Card.Config Msg -> Card.Config Msg
 block a c = Card.block a [CardBlock.custom c]
 viewItemTable : List Item -> Html Msg
 viewItemTable items = Table.table
@@ -110,7 +121,7 @@ viewItemTable items = Table.table
     
 viewItem : Item -> Table.Row Msg
 viewItem item = Table.tr []
-        [ Table.td [] [String.fromInt item.amount |> text]
+        [ Table.td [] [String.fromInt item.amount ++ "x" |> text ]
         , Table.td [] [text item.name]
         , Table.td discounted [priceToStr item.price |> text]
         , Table.td [] [priceToStr item.finalPrice |> text]
@@ -129,6 +140,7 @@ bootstrap = node "link"
     , attribute "integrity" "sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
     , attribute "crossorigin" "anonymous"] []
 
+testData : String
 testData = """
 Thuday
  
