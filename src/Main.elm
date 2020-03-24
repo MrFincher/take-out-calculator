@@ -79,7 +79,7 @@ viewPasteInput =
         |> Card.block [] [CardBlock.custom (
             TA.textarea 
                 [TA.attrs [autofocus True]
-                , TA.value testData
+                --, TA.value testData
                 , TA.rows 20
                 , TA.onInput Pasted
                 ]
@@ -144,20 +144,16 @@ testData : String
 testData = """
 Thuday
  
-1	[Vegetarisch] Dau Hu Xao Xa Ot - Jasminreis	€ 11,90
+1	Cheeseburger	€ 10,50
  
-1	[Vegetarisch] Massamann Pak - Jasminreis	€ 9,90
- 
-1	[Gerichte mit Curry und Kokosmilch] Gaeng Keaw Wan Nua (sehr scharf)	€ 11,90
- 
+1	Fries	€ 3,90
  
 Lieferkosten	Gratis
 Transaktionskosten	€ 0,00
  
  
-Total	€ 33,70
+Total	€ 14,30
  
 Zahlungsmöglichkeiten	
 Payment method image
-Deine Bestellnummer	XQFWHM
 """
