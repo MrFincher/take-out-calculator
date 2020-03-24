@@ -42,8 +42,8 @@ init _ = (WaitingForPaste Nothing, Cmd.none)
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model = case (msg,model) of
     (PercentageChange str, WithReceipt r) -> 
-        let percentage = Maybe.withDefault 40 <| String.toFloat str
-        in (WithReceipt {receipt = updatePrices percentage r.receipt, percentage = percentage} , Cmd.none)
+        let newPercentage = Maybe.withDefault r.percentage <| String.toFloat str
+        in (WithReceipt {receipt = updatePrices newPercentage r.receipt, percentage = newPercentage} , Cmd.none)
     (Pasted str, _) ->
         case parseReceipt str of
             Err err -> log err (WaitingForPaste err.context, Cmd.none)
@@ -114,7 +114,6 @@ viewReceipt r =
             [Html.span [style "padding-right" "15px"] [text "Cashback:"]
             , Html.input 
                 [Html.Events.onInput PercentageChange
-                ,H.value (String.fromFloat r.percentage)
                 ,type_ "number", H.step "5"
                 ,H.min "0",  H.max "100"
                 ,style "width" "65px"
