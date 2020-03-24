@@ -1,22 +1,30 @@
 module Parse exposing (parseReceipt)
-import Parser exposing (Parser,Error, map, into, succeed, grab, ignore, separatedBy, followedBy, string, anyChar)
+import Parser exposing (Parser,Error, inContext, map, into, succeed, grab, ignore, separatedBy, followedBy, string, anyChar)
 import Parser.Common exposing (int, tab, blank, newline)
 
 import Types exposing (..)
 
 parseReceipt : String -> Result Error Receipt
 parseReceipt str = Parser.parse str receipt
+
 skipSpaces : Parser (List Char)
 skipSpaces = Parser.zeroOrMore (Parser.oneOf [blank, newline])
+
 receipt : Parser Receipt
 receipt = into Receipt
     |> ignore skipSpaces
-    |> grab (Parser.until newline anyChar |> Parser.map String.fromList)
+    |> grab restaurant
     |> ignore skipSpaces
     |> grab (separatedBy1 skipSpaces item)
     |> ignore skipSpaces
-    |> grab (string "Lieferkosten\t" |> followedBy price)
+    |> grab (string "Lieferkosten\t" |> followedBy price |> inContext "Lieferkosten")
     
+restaurant : Parser String
+restaurant = 
+    Parser.until newline anyChar
+    |> Parser.map String.fromList
+    |> inContext "Restaurant" 
+
 item : Parser Item
 item = into Item
     |> grab int
@@ -25,9 +33,10 @@ item = into Item
     |> ignore (Parser.oneOrMore tab)
     |> grab price
     |> grab (succeed (Price 0))
+    |> inContext "Artikel Zeile"
 
 price : Parser Price
-price = Parser.oneOf
+price = inContext "Preis" <| Parser.oneOf
     [ string "Gratis" |> followedBy (Parser.succeed (Price 0))
     , Parser.string "€ " |> Parser.followedBy priceNum
     ]
