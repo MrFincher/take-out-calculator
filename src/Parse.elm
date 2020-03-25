@@ -12,6 +12,7 @@ skipSpaces = Parser.zeroOrMore (Parser.oneOf [blank, newline])
 
 receipt : Parser Receipt
 receipt = into Receipt
+    |> ignore (Parser.until (string "Verfolge Deine Bestellung") anyChar) |> ignore (string "Verfolge Deine Bestellung")
     |> ignore skipSpaces
     |> grab restaurant
     |> ignore skipSpaces

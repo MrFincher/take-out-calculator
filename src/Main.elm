@@ -2,14 +2,12 @@ module Main exposing (main)
 import Browser exposing (document,Document)
 import Html exposing (Html, text,node)
 import Html.Attributes as H exposing (..)
-import Html.Events exposing (onInput,onSubmit)
+import Html.Events exposing (onInput)
 import Bootstrap.CDN as CDN
 import Bootstrap.Table as Table
 import Bootstrap.Card as Card
 import Bootstrap.Card.Block as CardBlock
 import Bootstrap.Utilities.Spacing as Spacing
-import Bootstrap.Form as Form
-import Bootstrap.Form.Input as In
 import Bootstrap.Form.Textarea as TA
 
 import Types exposing (..)
@@ -83,7 +81,7 @@ responsive = node "meta"
 
 viewPasteInput : Maybe String -> List (Html Msg)
 viewPasteInput mErr = 
-    [Card.view (Card.config [Card.attrs [Spacing.m2]]
+    [Card.view (Card.config [Card.attrs [Spacing.m3]]
         |> Card.header [style "font-size" "20px"] [text "Email Text einfügen"]
         |> Card.block [] [CardBlock.custom (
             TA.textarea 
