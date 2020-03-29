@@ -32,8 +32,7 @@ item = into Item
     |> ignore tab
     |> grab (map String.fromList (Parser.until tab anyChar))
     |> ignore (Parser.oneOrMore tab)
-    |> grab price
-    |> grab (succeed (Price 0))
+    |> \before -> Parser.map2 (\f p -> f p p) before price
     |> inContext "Artikel Zeile"
 
 price : Parser Price
