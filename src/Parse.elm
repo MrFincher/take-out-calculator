@@ -2,7 +2,14 @@ module Parse exposing (parseReceipt)
 import Parser exposing (Parser,Error, inContext, map, into, succeed, grab, ignore, separatedBy, followedBy, string, anyChar)
 import Parser.Common exposing (int, tab, blank, newline)
 
-import Types exposing (..)
+import Price exposing (..)
+import Item exposing (..)
+
+type alias Receipt =
+    { restaurant : String
+    , items : List Item
+    , deliveryFee : Price
+    }
 
 parseReceipt : String -> Result Error Receipt
 parseReceipt str = Parser.parse str receipt
@@ -32,7 +39,7 @@ item = into Item
     |> ignore tab
     |> grab (map String.fromList (Parser.until tab anyChar))
     |> ignore (Parser.oneOrMore tab)
-    |> \before -> Parser.map2 (\f p -> f p p) before price
+    |> grab (Parser.map fromPrice <| price)
     |> inContext "Artikel Zeile"
 
 price : Parser Price

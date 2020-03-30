@@ -6,3 +6,5 @@ repl-temp-*
 index.html
 
 .DS_STORE
+
+deploy.sh
