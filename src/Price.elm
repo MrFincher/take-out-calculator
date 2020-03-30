@@ -50,7 +50,7 @@ viewPriceTd atts price = tdNoBorder
     [
         div (class "row" :: atts)
             [ 
-                if isDiscounted price
+                if not <| isDiscounted price
                     then span [] []
                     else Html.span (class "col" :: discounted)
                         [priceToStr price.originalPrice |> text]

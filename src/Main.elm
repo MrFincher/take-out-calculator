@@ -108,22 +108,20 @@ viewPasteInput : Maybe String -> List (Html Msg)
 viewPasteInput mErr = 
     [Card.view (Card.config [Card.attrs [Spacing.m3]]
         |> Card.header [style "font-size" "20px"] [text "Email Text einfügen"]
-        |> Card.block []
-            [CardBlock.custom (
-                TA.textarea 
-                    [TA.attrs [autofocus True]
-                    , TA.value testData
-                    , TA.rows 18
-                    , TA.onInput Pasted
-                    ]
-                )
-            ])
-    ,let str =
-            case mErr of
-                Just err -> "Problem beim Auslesen von: " ++ err
-                Nothing -> "Problem beim Auslesen"
-    in Card.view (Card.config [Card.outlineDanger, Card.attrs [Spacing.m2]]
-        |> block [CardBlock.textColor Text.danger, CardBlock.attrs [class "text-center"]] (text str))
+        |> block [] (
+            TA.textarea 
+                [TA.attrs [autofocus True]
+                -- , TA.value testData
+                , TA.rows 18
+                , TA.onInput Pasted
+                ]
+            )
+        )
+    , Card.view (Card.config [Card.outlineDanger, Card.attrs [Spacing.m2]]
+        |> block [CardBlock.textColor Text.danger, CardBlock.attrs
+            [class "text-center"]]
+            (text <| "Problem beim Auslesen" ++ maybe "" (\s->" von: "++s) mErr)
+        )
     ]
 
 viewMain : MainViewState -> List (Html Msg)
