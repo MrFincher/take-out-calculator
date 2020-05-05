@@ -65,9 +65,3 @@ separatedBy1 s p =
     s |> Parser.followedBy (separatedBy s p)
     |> Parser.maybe |> Parser.map (Maybe.withDefault [])
     |> Parser.map2 (::) p
-
-{- into (::)
-    |> grab p
-    |> ignore s
-    |> grab (Parser.separatedBy s p)
- -}
